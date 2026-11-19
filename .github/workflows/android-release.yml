@@ -38,11 +38,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: "21"
 
       - name: Set up Gradle 9.3.1
         uses: gradle/actions/setup-gradle@v4
@@ -72,11 +72,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: "21"
 
       - name: Set up Gradle 9.3.1
         uses: gradle/actions/setup-gradle@v4
@@ -188,7 +188,8 @@ jobs:
           cp "$RAW_APK" "$OUT_APK"
 
           # Verify APK signature with apksigner from Android SDK build-tools
-          APKSIGNER=$(find "$ANDROID_SDK_ROOT/build-tools" -name "apksigner" | sort -V | tail -n 1)
+          SDK_ROOT="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
+          APKSIGNER=$(find "$SDK_ROOT/build-tools" -name "apksigner" | sort -V | tail -n 1)
           if [ -n "$APKSIGNER" ]; then
             "$APKSIGNER" verify --print-certs "$OUT_APK"
           fi

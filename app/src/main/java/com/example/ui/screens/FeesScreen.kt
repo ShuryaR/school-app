@@ -19,10 +19,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.PictureAsPdf
-import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -354,7 +354,7 @@ fun FeesScreen(
                                 .padding(horizontal = 16.dp, vertical = 8.dp)
                         ) {
                             EmptyStateCard(
-                                icon = Icons.Filled.ReceiptLong,
+                                icon = Icons.AutoMirrored.Filled.ReceiptLong,
                                 title = strings.noDataTitle,
                                 actionLabel = strings.retry,
                                 onAction = onRefresh

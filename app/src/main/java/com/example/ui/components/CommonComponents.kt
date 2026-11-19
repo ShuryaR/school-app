@@ -71,7 +71,8 @@ import java.text.NumberFormat
 import java.util.Locale
 
 fun formatInr(amount: Double): String {
-    val formatter = NumberFormat.getNumberInstance(Locale("en", "IN")).apply {
+    val locale = Locale.Builder().setLanguage("en").setRegion("IN").build()
+    val formatter = NumberFormat.getNumberInstance(locale).apply {
         maximumFractionDigits = if (amount % 1.0 == 0.0) 0 else 2
     }
     return "₹${formatter.format(amount)}"
