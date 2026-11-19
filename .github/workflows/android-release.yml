@@ -49,10 +49,23 @@ jobs:
         with:
           gradle-version: "9.3.1"
 
-      - name: Restore debug keystore
+      - name: Restore or generate debug keystore
         run: |
-          if [ -f debug.keystore.base64 ] && [ ! -f debug.keystore ]; then
-            base64 -d debug.keystore.base64 > debug.keystore
+          if [ -f debug.keystore.base64 ]; then
+            if ! tr -d '\n\r ' < debug.keystore.base64 | base64 -d > debug.keystore; then
+              rm -f debug.keystore
+            fi
+          fi
+          if [ ! -s debug.keystore ]; then
+            keytool -genkeypair -noprompt \
+              -keystore debug.keystore \
+              -storepass android \
+              -alias androiddebugkey \
+              -keypass android \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
           fi
 
       - name: Run unit tests
@@ -128,7 +141,7 @@ jobs:
           fi
 
           # Ensure tag is unique even on manual re-runs
-          while git rev-parse "$NEXT_TAG" >/dev/null 2>&1; do
+          while git rev-parse -q --verify "refs/tags/$NEXT_TAG" >/dev/null 2>&1; do
             VERSION_CORE="${NEXT_TAG#v}"
             IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION_CORE"
             PATCH=$((PATCH + 1))
@@ -168,7 +181,20 @@ jobs:
           else
             echo "::warning::RELEASE_KEYSTORE_BASE64 / STORE_PASSWORD / KEY_PASSWORD secrets are not set. Falling back to debug.keystore signing so the APK is still installable."
             if [ -f debug.keystore.base64 ]; then
-              base64 -d debug.keystore.base64 > debug.keystore
+              if ! tr -d '\n\r ' < debug.keystore.base64 | base64 -d > debug.keystore; then
+                rm -f debug.keystore
+              fi
+            fi
+            if [ ! -s debug.keystore ]; then
+              keytool -genkeypair -noprompt \
+                -keystore debug.keystore \
+                -storepass android \
+                -alias androiddebugkey \
+                -keypass android \
+                -keyalg RSA \
+                -keysize 2048 \
+                -validity 10000 \
+                -dname "CN=Android Debug,O=Android,C=US"
             fi
 
             gradle :app:assembleDebug --no-daemon \
@@ -189,7 +215,7 @@ jobs:
 
           # Verify APK signature with apksigner from Android SDK build-tools
           SDK_ROOT="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
-          APKSIGNER=$(find "$SDK_ROOT/build-tools" -name "apksigner" | sort -V | tail -n 1)
+          APKSIGNER=$(find "$SDK_ROOT/build-tools" -name "apksigner" 2>/dev/null | sort -V | tail -n 1 || true)
           if [ -n "$APKSIGNER" ]; then
             "$APKSIGNER" verify --print-certs "$OUT_APK"
           fi
