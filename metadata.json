@@ -1,0 +1,6 @@
+{
+  "name": "Aanoor Parent",
+  "description": "OneBook School Parent companion app for Aanoor Vidyalaya with Tamil/English support, attendance, UPI fees, circulars, homework, results, certificates, and teacher messaging.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
